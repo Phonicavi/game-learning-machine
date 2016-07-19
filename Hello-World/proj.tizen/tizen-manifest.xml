@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<manifest xmlns="http://tizen.org/ns/packages" api-version="2.3" package="com.phonicavi.adarkroom" version="1.0.0">
-    <ui-application appid="com.phonicavi.adarkroom" exec="hellocpp" multiple="false" nodisplay="false" taskmanage="true" type="capp">
-        <label>Hello-World</label>
-        <icon>Hello-World.png</icon>
-    </ui-application>
-</manifest>
