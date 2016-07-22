@@ -6,16 +6,14 @@
 class HelloWorld : public cocos2d::Layer
 {
 public:
-    bool toSwim;
-    bool toRotate;
-    cocos2d::Vec3 direction;
-    
     bool toZoomIn;
     bool toZoomOut;
     bool toRotateHorizontal;
     bool toRotateVertical;
     cocos2d::Vec3 rotaryH;
     cocos2d::Vec3 rotaryV;
+    
+    cocos2d::Vec2 _start_point;
     
 public:
     static cocos2d::Scene* createScene();

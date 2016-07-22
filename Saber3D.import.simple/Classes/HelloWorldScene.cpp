@@ -177,8 +177,8 @@ bool HelloWorld::init()
     
     
     // set something
-    this->toSwim = false;
-    this->toRotate = false;
+    // this->toSwim = false;
+    // this->toRotate = false;
     
     this->toZoomIn = false;
     this->toZoomOut = false;
@@ -419,7 +419,7 @@ bool HelloWorld::init()
     saber->getMeshByIndex(4)->setTexture("maekami.png");
     saber->getMeshByIndex(5)->setTexture("maekami.png");
     saber->getMeshByIndex(6)->setTexture("usirokami.png");
-    saber->getMeshByIndex(7)->setTexture("kao.png");
+    saber->getMeshByIndex(7)->setTexture("jyasin.png");
     saber->getMeshByIndex(8)->setTexture("uehuku.png");
     saber->getMeshByIndex(9)->setTexture("button.png");
     saber->getMeshByIndex(10)->setTexture("uehuku.png");
@@ -501,30 +501,63 @@ bool HelloWorld::init()
     
 //    saber->runAction(RepeatForever::create(RotateBy::create(1.5, Vec3(-75.f, 75.f, 0.f))));
     
+    // this->schedule([this, saber](float f){
+    //     if (toZoomIn && !toZoomOut) {
+    //         saber->setScale(saber->getScale()+0.01);
+    //     } else if (toZoomOut && !toZoomIn) {
+    //         saber->setScale(saber->getScale()-0.01);
+    //     }
+    // }, "zoom");
+    
+    // this->schedule([this, saber](float f){
+    //     if (toRotateHorizontal && saber->getActionByTag(-3) == NULL) {
+    //         auto rot = RotateBy::create(0.01, 2*rotaryH);
+    //         saber->runAction(rot);
+    //         rot->setTag(-3);
+    //     }
+    // }, "rotateH");
+    
+    // this->schedule([this, saber](float f){
+    //     if (toRotateVertical && saber->getActionByTag(3) == NULL) {
+    //         auto rot = RotateBy::create(0.01, 2*rotaryV);
+    //         saber->runAction(rot);
+    //         rot->setTag(3);
+    //     }
+    // }, "rotateV");
+    
+    
     this->schedule([this, saber](float f){
         if (toZoomIn && !toZoomOut) {
             saber->setScale(saber->getScale()+0.01);
         } else if (toZoomOut && !toZoomIn) {
             saber->setScale(saber->getScale()-0.01);
         }
-    }, "zoom");
-    
-    this->schedule([this, saber](float f){
-        if (toRotateHorizontal && saber->getActionByTag(-3) == NULL) {
-            auto rot = RotateBy::create(0.01, 2*rotaryH);
-            saber->runAction(rot);
-            rot->setTag(-3);
+        if (toRotateHorizontal || toRotateVertical) {
+            saber->setRotation3D(saber->getRotation3D()+rotaryH+rotaryV);
         }
-    }, "rotateH");
+    }, "play");
     
-    this->schedule([this, saber](float f){
-        if (toRotateVertical && saber->getActionByTag(3) == NULL) {
-            auto rot = RotateBy::create(0.01, 2*rotaryV);
-            saber->runAction(rot);
-            rot->setTag(3);
+    auto _lis = EventListenerTouchOneByOne::create();
+    _start_point = saber->convertToWorldSpace(saber->getAnchorPoint());
+    _lis->onTouchBegan = [this, saber](Touch *t, Event *event){
+        _start_point = t->getLocation();
+        if (saber->getBoundingBox().containsPoint(_start_point)) {
+            return true;
         }
-    }, "rotateV");
+        return false;
+    };
     
+    _lis->onTouchMoved = [this, saber](Touch *t, Event *event){
+        auto dir = Vec2(t->getLocation().x-_start_point.x,
+                        t->getLocation().y-_start_point.y);
+        saber->setPosition(saber->getPosition()+dir.getNormalized());
+    };
+    
+    _lis->onTouchEnded = [this, saber](Touch *t, Event *event){};
+    
+    _lis->onTouchCancelled = [this, saber](Touch *t, Event *event){};
+
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(_lis, this);
     
     return true;
 }
