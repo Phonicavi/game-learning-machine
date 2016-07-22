@@ -9,6 +9,14 @@ public:
     bool toSwim;
     bool toRotate;
     cocos2d::Vec3 direction;
+    
+    bool toZoomIn;
+    bool toZoomOut;
+    bool toRotateHorizontal;
+    bool toRotateVertical;
+    cocos2d::Vec3 rotaryH;
+    cocos2d::Vec3 rotaryV;
+    
 public:
     static cocos2d::Scene* createScene();
 

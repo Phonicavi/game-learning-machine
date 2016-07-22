@@ -56,10 +56,10 @@ bool HelloWorld::init()
     // add a label shows "Hello World"
     // create and initialize a label
     
-    auto label = Label::createWithTTF("Virtual Handle", "fonts/Marker Felt.ttf", 24);
+    auto label = Label::createWithTTF("Rolling Saber", "fonts/Marker Felt.ttf", 24);
     
     // position the label on the center of the screen
-    label->setPosition(Vec2(origin.x + visibleSize.width/2,
+    label->setPosition(Vec2(origin.x + 3*visibleSize.width/4,
                             origin.y + visibleSize.height - label->getContentSize().height));
 //    label->runAction(Sequence::create(Repeat::create(RotateBy::create(0.5, -180), 4),
 //                                      CallFunc::create([this, label](){
@@ -175,9 +175,18 @@ bool HelloWorld::init()
     
      */
     
+    
     // set something
     this->toSwim = false;
     this->toRotate = false;
+    
+    this->toZoomIn = false;
+    this->toZoomOut = false;
+    this->toRotateHorizontal = false;
+    this->toRotateVertical = false;
+    
+    this->rotaryH = Vec3(0.f, 0.f, 0.f);
+    this->rotaryV = Vec3(0.f, 0.f, 0.f);
     
     auto vh = VirtualHandle::create();
     vh->setPositionY(vh->postHeight());
@@ -197,77 +206,143 @@ bool HelloWorld::init()
      
      */
     
-    this->direction = Vec3(-1.f, 0.f, 0.f);
-    this->direction.normalize();
+//    this->direction = Vec3(-1.f, 0.f, 0.f);
+//    this->direction.normalize();
     
     // add virtual handle
-    vh->setCallback([this](VirtualHandleEvent event){
+    vh->setCallback([this, vh](VirtualHandleEvent event){
         std::string value;
         switch (event) {
             case VirtualHandleEvent::A:
                 value = "A";
-                this->toSwim = true;
+                // toSwim = true;
+                toZoomIn = true;
+                toZoomOut = false;
                 break;
             case VirtualHandleEvent::B:
                 value = "B";
-                this->toRotate = true;
+                // toRotate = true;
+                toZoomOut = true;
+                toZoomIn = false;
                 break;
             case VirtualHandleEvent::CANCEL_A:
                 value = "CANCEL_A";
-                this->toSwim = false;
+                // toSwim = false;
+                toZoomIn = false;
                 break;
             case VirtualHandleEvent::CANCEL_B:
                 value = "CANCEL_B";
-                this->toRotate = false;
+                // toRotate = false;
+                toZoomOut = false;
                 break;
                 
             case VirtualHandleEvent::LEFT:
+                toRotateHorizontal = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "LEFT";
                 break;
             case VirtualHandleEvent::RIGHT:
+                toRotateHorizontal = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "RIGHT";
                 break;
             case VirtualHandleEvent::UP:
+                toRotateVertical = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "UP";
                 break;
             case VirtualHandleEvent::DOWN:
+                toRotateVertical = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "DOWN";
                 break;
             case VirtualHandleEvent::LEFT_UP:
+                toRotateHorizontal = true;
+                toRotateVertical = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "LEFT_UP";
                 break;
             case VirtualHandleEvent::RIGHT_UP:
+                toRotateHorizontal = true;
+                toRotateVertical = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "RIGHT_UP";
                 break;
             case VirtualHandleEvent::LEFT_DOWN:
+                toRotateHorizontal = true;
+                toRotateVertical = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "LEFT_DOWN";
                 break;
             case VirtualHandleEvent::RIGHT_DOWN:
+                toRotateHorizontal = true;
+                toRotateVertical = true;
+                rotaryH = Vec3(0.f, vh->getDirection().x, 0.f);
+                rotaryV = Vec3(vh->getDirection().y, 0.f, 0.f);
                 value = "RIGHT_DOWN";
                 break;
                 
             case VirtualHandleEvent::CANCEL_LEFT:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_LEFT";
                 break;
             case VirtualHandleEvent::CANCEL_RIGHT:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_RIGHT";
                 break;
             case VirtualHandleEvent::CANCEL_UP:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_UP";
                 break;
             case VirtualHandleEvent::CANCEL_DOWN:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_DOWN";
                 break;
             case VirtualHandleEvent::CANCEL_LEFT_UP:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_LEFT_UP";
                 break;
             case VirtualHandleEvent::CANCEL_RIGHT_UP:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_RIGHT_UP";
                 break;
             case VirtualHandleEvent::CANCEL_LEFT_DOWN:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_LEFT_DOWN";
                 break;
             case VirtualHandleEvent::CANCEL_RIGHT_DOWN:
+                toRotateHorizontal = false;
+                toRotateVertical = false;
+                rotaryH = Vec3(0.f, 0.f, 0.f);
+                rotaryV = Vec3(0.f, 0.f, 0.f);
                 value = "CANCEL_RIGHT_DOWN";
                 break;
                 
@@ -329,7 +404,7 @@ bool HelloWorld::init()
      */
     
     auto saber =Sprite3D::create("Saber_dorisuVer1.05.c3t");
-    saber->setPosition(Vec2(visibleSize.width/2, visibleSize.height/5));
+    saber->setPosition(Vec2(visibleSize.width/2, visibleSize.height/6));
     saber->setScale(1.2);
     this->addChild(saber);
     saber->getMesh()->setTexture("karada.png");
@@ -351,9 +426,9 @@ bool HelloWorld::init()
     saber->getMeshByIndex(11)->setTexture("skart.png");
     saber->getMeshByIndex(12)->setTexture("skart.png");
     saber->getMeshByIndex(13)->setTexture("skart.png");
-    saber->getMeshByIndex(14)->setTexture("uehuku.png");
+    saber->getMeshByIndex(14)->setTexture("skart.png");
     saber->getMeshByIndex(15)->setTexture("skart.png");
-    saber->getMeshByIndex(16)->setTexture("uehuku.png");
+    saber->getMeshByIndex(16)->setTexture("skart.png");
     saber->getMeshByIndex(17)->setTexture("skart.png");
     saber->getMeshByIndex(18)->setTexture("skart.png");
     saber->getMeshByIndex(19)->setTexture("skart.png");
@@ -423,6 +498,33 @@ bool HelloWorld::init()
         
     }, 5.0f, "change");
      */
+    
+//    saber->runAction(RepeatForever::create(RotateBy::create(1.5, Vec3(-75.f, 75.f, 0.f))));
+    
+    this->schedule([this, saber](float f){
+        if (toZoomIn && !toZoomOut) {
+            saber->setScale(saber->getScale()+0.01);
+        } else if (toZoomOut && !toZoomIn) {
+            saber->setScale(saber->getScale()-0.01);
+        }
+    }, "zoom");
+    
+    this->schedule([this, saber](float f){
+        if (toRotateHorizontal && saber->getActionByTag(-3) == NULL) {
+            auto rot = RotateBy::create(0.01, 2*rotaryH);
+            saber->runAction(rot);
+            rot->setTag(-3);
+        }
+    }, "rotateH");
+    
+    this->schedule([this, saber](float f){
+        if (toRotateVertical && saber->getActionByTag(3) == NULL) {
+            auto rot = RotateBy::create(0.01, 2*rotaryV);
+            saber->runAction(rot);
+            rot->setTag(3);
+        }
+    }, "rotateV");
+    
     
     return true;
 }

@@ -18,7 +18,8 @@ _margin(Vec2(24, 45)),
 _rocker_range_value(36),
 _rockerTouchID(-1),
 _rockerWay(0),
-_rockerLastPoint(Vec2(0, 0))
+_rockerLastPoint(Vec2(0, 0)),
+_rockerDirection(Vec2(0, 0))
 {
     //
 }
@@ -85,10 +86,12 @@ bool VirtualHandle::init()
                 // stay
 //                CCLOG("stay");
                 _rockerWay = 0;
+                _rockerDirection = Vec2(0, 0);
             } else {
                 // check direction
-                auto direction = Vec2(p.x-orig.x, p.y-orig.y);
-                auto arc = 180*atan2(direction.y, direction.x)/M_PI;
+                _rockerDirection = Vec2(p.x-orig.x, p.y-orig.y);
+                _rockerDirection.normalize();
+                auto arc = 180*atan2(_rockerDirection.y, _rockerDirection.x)/M_PI;
 //                CCLOG("TID = %d, arc = %f", _rockerTouchID, arc);
                 _rockerWay = callBackWithDirection(arc);
             }
@@ -99,6 +102,7 @@ bool VirtualHandle::init()
             
         } else {
             resetRockerPosition(orig);
+            _rockerDirection = Vec2(0, 0);
         }
         
         return false;
@@ -106,6 +110,7 @@ bool VirtualHandle::init()
     
     rocker_range_event->onTouchMoved = [this](Touch *touch, Event *event){
         if (_rockerWay == -1) {
+            _rockerDirection = Vec2(0, 0);
             return ;
         }
         auto bound = _rocker_range->getBoundingBox();
@@ -115,18 +120,18 @@ bool VirtualHandle::init()
         
         _rockerTouchID = touch->getID();
         _rockerLastPoint = p;
-        auto direction = Vec2(p.x-orig.x, p.y-orig.y);
-        auto arc = 180*atan2(direction.y, direction.x)/M_PI;
+        _rockerDirection = Vec2(p.x-orig.x, p.y-orig.y);
+        _rockerDirection.normalize();
+        auto arc = 180*atan2(_rockerDirection.y, _rockerDirection.x)/M_PI;
 //        CCLOG("onMoved: %f", arc);
         _rockerWay = callBackWithDirection(arc);
         
         if (bound.containsPoint(p)) {
             _rocker->setPosition(_rocker_range->convertToNodeSpace(p));
         } else {
-            direction.normalize();
             float radius = _rocker_range_value/2;
-            auto edge = Vec2(orig.x + radius*direction.x,
-                             orig.y + radius*direction.y);
+            auto edge = Vec2(orig.x + radius*_rockerDirection.x,
+                             orig.y + radius*_rockerDirection.y);
             _rocker->setPosition(_rocker_range->convertToNodeSpace(edge));
 //            CCLOG("orig: [%f, %f]", orig.x, orig.y);
 //            CCLOG("edge: [%f, %f]", edge.x, edge.y);
@@ -135,6 +140,7 @@ bool VirtualHandle::init()
     };
     
     rocker_range_event->onTouchEnded = [this](Touch *touch, Event *event){
+        _rockerDirection = Vec2(0, 0);
         if (_rockerWay == -1) {
             return ;
         }
@@ -149,6 +155,7 @@ bool VirtualHandle::init()
     };
     
     rocker_range_event->onTouchCancelled = [this](Touch *touch, Event *event){
+        _rockerDirection = Vec2(0, 0);
         if (_rockerWay == -1) {
             return ;
         }
@@ -301,3 +308,7 @@ float VirtualHandle::postHeight() const
     return _margin.y;
 }
 
+Vec2 VirtualHandle::getDirection() const
+{
+    return this->_rockerDirection;
+}

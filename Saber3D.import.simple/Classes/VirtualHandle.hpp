@@ -53,8 +53,11 @@ protected:
     int _rockerWay; // 0:center, 1:left, 2:right, 3:up, 4:down, 5:left_up, 6:right_up, 7:left_down, 8:right_down
     cocos2d::Vec2 _rockerLastPoint; // last time position
     
+    cocos2d::Vec2 _rockerDirection;
+    
     std::function<void(VirtualHandleEvent)> _callback;
     
+protected:
     void touchEvent(Ref *obj, ui::Widget::TouchEventType type);
     
     inline void callback(VirtualHandleEvent event);
@@ -76,6 +79,8 @@ public:
     float getRockerRangeValue() const;
     
     float postHeight() const;
+    
+    Vec2 getDirection() const;
 };
 
 
